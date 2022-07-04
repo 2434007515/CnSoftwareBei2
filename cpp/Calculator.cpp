@@ -69,9 +69,11 @@ void Calculator::doCalculate(condition_variable &cv, unique_lock<mutex> &lck)
         if (i % 10000 == 0)
         {
             cout << i << endl;
-            sleep(0.1);
+            // sleep(0.1);
+            this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     }
+    cout << "send part finish,wait for finish!" << endl;
     is_finished = true;
     sendFinish();
     cv.wait(lck);
