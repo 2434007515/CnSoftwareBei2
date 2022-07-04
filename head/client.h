@@ -44,7 +44,8 @@ public:
             cout << "to large msg" << endl;
         }
         strcpy(msgToServer, s.c_str());
-        asio::write(sock, asio::buffer(msgToServer));
+        // asio::write(sock, asio::buffer(msgToServer));
+        asio::async_write(sock, asio::buffer(msgToServer), [](const asio::error_code &ec, std::size_t bytes_transferred) {});
         // m_mtx.unlock();
     }
     void send(const message &msg)
@@ -52,7 +53,8 @@ public:
         lock_guard lg(m_mtx);
         // m_mtx.lock();
         strcpy(msgToServer, msg.getSendMsg());
-        asio::write(sock, asio::buffer(msgToServer));
+        // asio::write(sock, asio::buffer(msgToServer));
+        asio::async_write(sock, asio::buffer(msgToServer), [](const asio::error_code &ec, std::size_t bytes_transferred) {});
         // m_mtx.unlock();
     }
 };
