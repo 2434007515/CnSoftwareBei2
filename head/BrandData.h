@@ -19,7 +19,7 @@ public:
     std::pair<int, int> brandCode;
     std::vector<PartData> parts;
     std::unordered_map<int, int> partIdHash;
-    mutable std::mutex m_mtx;
+    // mutable std::mutex m_mtx;
 };
 
 #endif // CNSOFTBEI_BRANDDATA_H

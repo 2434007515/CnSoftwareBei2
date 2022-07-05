@@ -16,8 +16,8 @@ class client
 public:
     int port;
     io_service ios;
-    char msgToServer[256];
-    char msgFromServer[256];
+    char msgToServer[42];
+    char msgFromServer[42];
     ip::tcp::socket sock;
     ip::tcp::endpoint ep;
     std::mutex m_mtx;

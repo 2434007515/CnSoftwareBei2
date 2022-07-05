@@ -38,7 +38,7 @@ void Calculator::solveOrder(ZipOrder &order)
     auto &targetBrandData = totalData.datas[brand.first - 1][brand.second - 1];
 
     // std::unique_lock grd(targetBrandData->m_mtx); //上锁
-    lock_guard lg(targetBrandData->m_mtx);
+    // lock_guard lg(targetBrandData->m_mtx);
     // targetBrandData->m_mtx.lock();
 
     //如果对应品牌数据中没有这个零件，就先插入
@@ -61,6 +61,7 @@ void Calculator::doCalculate(condition_variable &cv, unique_lock<mutex> &lck)
 {
     // send part
     cout << "start send part!" << endl;
+    auto begin1 = clock();
     int sz = reader.parts.size();
     cout << "total num:" << sz << endl;
     for (int i = 0; i < sz; i++)
@@ -70,29 +71,29 @@ void Calculator::doCalculate(condition_variable &cv, unique_lock<mutex> &lck)
         {
             cout << i << endl;
             // sleep(0.1);
-            this_thread::sleep_for(std::chrono::milliseconds(1000));
+            this_thread::sleep_for(std::chrono::milliseconds(250)); // 200 ×，250 √,300 √
         }
     }
     cout << "send part finish,wait for finish!" << endl;
+
     is_finished = true;
     sendFinish();
     cv.wait(lck);
+    is_notify = false;
+    is_finished = false;
+
+    auto end1 = clock();
+    cout << "parts.size()=" << reader.parts.size() << endl;
+    cout << "send part time cost:" << (double)(end1 - begin1) / 1000000 << "s.\n";
     cout << "send part finish,start data sum!" << endl;
 
     // data sum
     auto begin = clock();
     int cnt = 0;
     for (auto &order : this->reader.orders)
-    {
-        cnt++;
         solveOrder(order);
-        // if (cnt % 10000 == 0)
-        // {
-        //     cout << cnt << endl;
-        // }
-    }
 
-    int totalPartsCount = 0;
+        int totalPartsCount = 0;
     for (int i = 0; i < 5; i++)
         for (int j = 0; j < 5; j++)
             totalPartsCount += totalData.datas[i][j]->parts.size();
@@ -101,18 +102,18 @@ void Calculator::doCalculate(condition_variable &cv, unique_lock<mutex> &lck)
     std::cout << "totalSales:" << totalData.totalSales << std::endl;
     std::cout << "totalPartCount:" << totalPartsCount << std::endl;
     std::cout << "avg:" << avg << std::endl;
-    for (int i = 0; i < 5; i++)
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            std::cout << "Brand" << (i + 1) << (j + 1) << ": \n";
-            for (auto k : totalData.datas[i][j]->parts)
-            {
-                if (k.saleCount < avg * 0.3)
-                    std::cout << k.id << ' ' << k.saleCount << ' ' << k.totalSales << std::endl;
-            }
-        }
-    }
+    // for (int i = 0; i < 5; i++)
+    // {
+    //     for (int j = 0; j < 5; j++)
+    //     {
+    //         std::cout << "Brand" << (i + 1) << (j + 1) << ": \n";
+    //         for (auto k : totalData.datas[i][j]->parts)
+    //         {
+    //             if (k.saleCount < avg * 0.3)
+    //                 std::cout << k.id << ' ' << k.saleCount << ' ' << k.totalSales << std::endl;
+    //         }
+    //     }
+    // }
     auto end = clock();
     cout << "time cost:" << (double)(end - begin) / 1000000 << "s.\n";
 }

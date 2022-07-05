@@ -10,6 +10,7 @@
 #include "Part.h"
 #include "ZipPart.h"
 #include "ZipOrder.h"
+#include "PartData.h"
 
 class Utils
 {
@@ -27,6 +28,15 @@ public:
     std::string static zipOrderToString(ZipOrder zipOrder);
     //序列化
     std::string static zipPartToString(ZipPart zipPart);
+    //序列化
+    std::string static zipTotalData(int from, int partCount, long long totalSale);
+    //序列化
+    std::string static zipPartData(PartData part);
+
+    //反序列化
+    PartData static unzipPartData(const char *line);
+    //反序列化
+    PartData static unzipPartData(const std::string &line);
 
     //反序列化
     ZipOrder static unZipOrderString(const char *line);
@@ -37,6 +47,23 @@ public:
     ZipPart static unZipPartString(const std::string &line);
     //反序列化
     ZipPart static unZipPartString(const char *line);
+
+    //反序列化
+    std::pair<int, std::pair<int, int>> static unZipTotalData(const std::string &data);
+    //反序列化
+    std::pair<int, std::pair<int, int>> static unZipTotalData(const char *line);
+
+    static std::string getTag(int x)
+    {
+        std::string s = "[";
+        for (int i = 1; i <= x; i++)
+            s += "**";
+        for (int i = x; i < 10; i++)
+            s += "..";
+        s += ']';
+        s += std::to_string(x * 10) + "%";
+        return s;
+    }
 };
 
 #endif // CNSOFTBEI_UTILS_H

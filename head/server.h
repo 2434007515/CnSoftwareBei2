@@ -17,8 +17,8 @@ public:
     int port;
     io_service ios;
     ip::tcp::acceptor acceptor;
-    char msgFromClient[256];
-    char msgToClient[256];
+    char msgFromClient[42];
+    char msgToClient[42];
     ip::tcp::socket sock;
     server(int p, condition_variable &cv, Calculator &calculator) : port(p),
                                                                     acceptor(ios, ip::tcp::endpoint(ip::tcp::v4(), port)),

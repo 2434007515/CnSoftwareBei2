@@ -31,24 +31,6 @@ std::vector<std::string> Utils::split(const std::string &str, const char ch)
 ZipPart Utils::loadPart(const std::string &line)
 {
     return Utils::loadPart(line.c_str());
-    //    ZipPart zipPart={0,{0,0}};
-    //    int cnt=0;
-    //    for(auto i:line){
-    //        if(i=='|') cnt++;
-    //        else{
-    //            if(cnt==0) zipPart.pPartkey=zipPart.pPartkey*10+i-'0';
-    //            else if(cnt==3){
-    //                if(i>='0'&&i<='9'){
-    //                    if(!zipPart.pBrandCode.first) zipPart.pBrandCode.first=i-'0';
-    //                    else{
-    //                        zipPart.pBrandCode.second=i-'0';
-    //                        break;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //    return zipPart;
 }
 
 ZipOrder Utils::loadOrder(const std::string &line)
@@ -244,4 +226,100 @@ ZipPart Utils::unZipPartString(const char *line)
         }
     }
     return zipPart;
+}
+
+std::string Utils::zipTotalData(int from, int partCount, long long totalSale)
+{
+    return std::to_string(from) + '|' + std::to_string(partCount) + '|' + std::to_string(totalSale) + '|';
+}
+
+std::pair<int, std::pair<int, int>> Utils::unZipTotalData(const std::string &data)
+{
+    return Utils::unZipTotalData(data.c_str());
+}
+std::pair<int, std::pair<int, int>> Utils::unZipTotalData(const char *line)
+{
+    std::pair<int, std::pair<int, int>> rec{0, {0, 0}};
+    int cnt = 0;
+    for (int i = 0; cnt < 3; i++)
+    {
+        if (line[i] == '|')
+            cnt++;
+        else
+        {
+            if (cnt == 0)
+            {
+                rec.first = rec.first * 10 + line[i] - '0';
+            }
+            else if (cnt == 1)
+            {
+                rec.second.first = rec.second.first * 10 + line[i] - '0';
+            }
+            else
+            {
+                rec.second.second = rec.second.second * 10 + line[i] - '0';
+            }
+        }
+    }
+    return rec;
+}
+
+std::string Utils::zipPartData(PartData part)
+{
+    return std::to_string(part.id) + '|' + std::to_string(part.brandCode.first) + std::to_string(part.brandCode.second) + std::to_string(part.saleCount) + '|' + std::to_string(part.totalSales);
+}
+
+PartData Utils::unzipPartData(const char *line)
+{
+    int cnt = 0;
+    double base = 1;
+    bool dig = false;
+    PartData part{};
+    for (int i = 0; line[i] != '\0'; i++)
+    {
+        if (line[i] == '|')
+            cnt++;
+        else if (line[i] == '.')
+            dig = true;
+        else
+        {
+            if (cnt == 0)
+            {
+                part.id = part.id * 10 + line[i] - '0';
+            }
+            else if (cnt == 1)
+            {
+                if (!part.brandCode.first)
+                {
+                    part.brandCode.first = line[i] - '0';
+                }
+                else if (!part.brandCode.second)
+                {
+                    part.brandCode.second = line[i] - '0';
+                }
+                else
+                {
+                    part.saleCount = part.saleCount * 10 + line[i] - '0';
+                }
+            }
+            else
+            {
+                if (dig)
+                {
+                    base /= 10;
+                    part.totalSales += (line[i] - '0') * base;
+                }
+                else
+                {
+                    part.totalSales = part.totalSales * 10 + line[i] - '0';
+                }
+            }
+        }
+    }
+    return part;
+}
+
+PartData Utils::unzipPartData(const std::string &line)
+{
+    return Utils::unzipPartData(line.c_str());
 }
